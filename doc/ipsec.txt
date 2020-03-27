@@ -1,0 +1,215 @@
+
+build_i（ike_init.c)
+    +
+    +--
+
+
+
+
+
+
+
+
+main (charon.c)
+    +
+    +--initialize (daemon.c:894)   plugins=0x402690 "aes des rc2 sha2 sha1 md5 mgf1 random nonce x509 revocation constraints pubkey pkcs1 pkcs7 pkcs8 pkcs12 pgp dnskey sshkey pem fips-prf gmp curve25519 xcbc cmac hmac attr kernel-netlink resolve socket-"...)
+    +    +
+    +    +--load_plugins (plugins/plugin_loader.c:1216)
+    +    +
+    +    +--queue_job (processing/processor.c:392)
+    +
+    +--start (daemon.c:817)
+    +    +
+    +    +--set_threads (processing/processor.c:453)
+    +    +    +
+    +    +    +--thread_create(process_jobs) (threading/thread.c:344)
+    +
+    +--run (charon.c:91)
+
+
+
+
+...-->stroke_socket.c中receive()-->process()-->stroke_initiate()
+
+
+#0  build_i (this=0x7fffc40027f0, message=0x7fffc4003980) at sa/ikev2/tasks/ike_init.c:536
+#1  0x00007ffff791ae71 in initiate (this=0x7fffc4002b30) at sa/ikev2/task_manager_v2.c:635
+#2  0x00007ffff79159a9 in acquire (this=0x60bfd0, reqid=1, src=0x7fffc4000a30, dst=0x7fffc4000af0) at sa/trap_manager.c:573
+#3  0x00007ffff7904733 in execute (this=<optimized out>) at processing/jobs/acquire_job.c:59
+#4  0x00007ffff7ba346b in process_job (worker=0x6416b0, this=0x6075a0) at processing/processor.c:235
+#5  process_jobs (worker=0x6416b0) at processing/processor.c:321
+#6  0x00007ffff7bb4c4b in thread_main (this=0x6416e0) at threading/thread.c:331
+#7  0x00007ffff76c56ba in start_thread (arg=0x7fffee266700) at pthread_create.c:333
+#8  0x00007ffff73fb41d in clone () at ../sysdeps/unix/sysv/linux/x86_64/clone.S:109
+
+stroke_route
+
+/**
+ * process a stroke request
+ */
+static bool on_accept(private_stroke_socket_t *this, stream_t *stream)
+
+warning: Source file is more recent than executable.
+659				stroke_initiate(this, msg, out);
+(gdb) bt
+#0  on_accept (this=0x636ae0, stream=<optimized out>) at stroke_socket.c:659
+#1  0x00007ffff7b9f701 in accept_async (data=0x7fffd8000a50) at networking/streams/stream_service.c:189
+#2  0x00007ffff7ba2af2 in execute (this=<optimized out>) at processing/jobs/callback_job.c:77
+#3  0x00007ffff7ba346b in process_job (worker=0x640af0, this=0x6075a0) at processing/processor.c:235
+#4  process_jobs (worker=0x640af0) at processing/processor.c:321
+#5  0x00007ffff7bb4c4b in thread_main (this=0x640b20) at threading/thread.c:331
+#6  0x00007ffff76c56ba in start_thread (arg=0x7ffff026a700) at pthread_create.c:333
+#7  0x00007ffff73fb41d in clone () at ../sysdeps/unix/sysv/linux/x86_64/clone.S:109
+(gdb) 
+
+initiate (this=0x63bfd0, msg=0x7fffcc000b90, out=0x7fffcc000e30) at stroke_control.c:142
+
+
+
+(gdb) bt
+#0  receiver_create () at network/receiver.c:619
+#1  0x00007ffff78f1125 in sender_receiver_cb (plugin=<optimized out>, feature=<optimized out>, reg=<optimized out>, this=0x608900) at daemon.c:832
+#2  0x00007ffff7ba1153 in load_feature (level=2, provided=0x610b40, this=0x608440) at plugins/plugin_loader.c:786
+#3  load_provided (this=this@entry=0x608440, provided=0x610b40, level=level@entry=1) at plugins/plugin_loader.c:861
+#4  0x00007ffff7ba10aa in load_provided (level=1, provided=<optimized out>, this=0x608440) at plugins/plugin_loader.c:832
+#5  load_registered (registered=<optimized out>, level=1, this=0x608440) at plugins/plugin_loader.c:688
+#6  load_dependencies (level=1, provided=0x6109b0, this=0x608440) at plugins/plugin_loader.c:730
+#7  load_feature (level=1, provided=0x6109b0, this=0x608440) at plugins/plugin_loader.c:784
+#8  load_provided (this=this@entry=0x608440, provided=0x6109b0, level=level@entry=0) at plugins/plugin_loader.c:861
+#9  0x00007ffff7ba1a82 in load_provided (level=0, provided=<optimized out>, this=0x608440) at plugins/plugin_loader.c:832
+#10 load_features (this=0x608440) at plugins/plugin_loader.c:882
+#11 load_plugins (this=<optimized out>, 
+    list=0x402690 "aes des rc2 sha2 sha1 md5 mgf1 random nonce x509 revocation constraints pubkey pkcs1 pkcs7 pkcs8 pkcs12 pgp dnskey sshkey pem fips-prf gmp curve25519 xcbc cmac hmac attr kernel-netlink resolve socket-"...) at plugins/plugin_loader.c:1271
+#12 0x00007ffff78f0c1a in initialize (this=<optimized out>, 
+    plugins=0x402690 "aes des rc2 sha2 sha1 md5 mgf1 random nonce x509 revocation constraints pubkey pkcs1 pkcs7 pkcs8 pkcs12 pgp dnskey sshkey pem fips-prf gmp curve25519 xcbc cmac hmac attr kernel-netlink resolve socket-"...) at daemon.c:894
+#13 0x0000000000401964 in main (argc=1, argv=0x7fffffffe678) at charon.c:407
+
+
+
+
+ipsec up home
+steven@ubuntu:~/study/strongswan-5.6.2/src/stroke/.libs$ gdb --args stroke up home
+main （stroke.c:555）
+    +
+    +--initiate_connection (stroke.c:197)
+    +    +
+    +    +--send_stroke_msg (stroke.c:101)
+    +    +    +
+    +    +    +--lib->streams->connect(networking/streams/stream_manager.c:80)
+    +    +    +    +
+    +    +    +    +--entry->create (networking/streams/stream_unix.c:46) stream_create_unix (uri=0x402afb "unix:///var/run/charon.ctl")
+    +    +    +    +    +
+    +    +    +    +    +--socket(AF_UNIX, SOCK_STREAM, 0)  
+    +    +    +    +    +
+    +    +    +    +    +--connect           unix:///var/run/charon.ctl
+    +    +    +
+    +    +    +--stream->write_all (networking/streams/stream.c:144) write_all
+    +    +    +    +
+    +    +    +    +--write_ (networking/streams/stream.c:113)
+    +    +    +    +    +
+    +    +    +    +    +--send(this->fd, buf, len, 0) （系统函数）
+    +    +    +
+    +    +    +--stream->read (networking/streams/stream.c:62) read_
+    +    +    +    +
+    +    +    +    +--recv(this->fd, buf, len, 0) （系统函数）
+
+
+
+
+on_accept
+    +
+    +--stroke_route (stroke_socket.c:662)
+    +    +
+    +    +--route (stroke_control.c:672)
+    +    +    +
+    +    +    +--charon_route (stroke_control.c:637)
+    +    +    +    +
+    +    +    +    +--find_reqid (stroke_control.c:637)
+    +    +    +    +
+    +    +    +    +--install (sa/trap_manager.c:189)
+    +    +    +    +    +
+    +    +    +    +    +--install_policies (sa/child_sa.c:1202)
+    +    +    +    +    +    +
+    +    +    +    +    +    +--install_policies_inbound(sa/child_sa.c:973)
+    +    +    +    +    +    +    +
+    +    +    +    +    +    +    +--add_policy(kernel/kernel_interface.c:477)
+    +    +    +    +    +    +    +    +
+    +    +    +    +    +    +    +    +--add_policy(kernel_netlink_ipsec.c:2517)
+    +    +    +    +    +    +    +    +    +
+    +    +    +    +    +    +    +    +    +--add_policy_internal(kernel_netlink_ipsec.c:2374)
+    +    +    +    +    +    +    +    +    +    +
+    +    +    +    +    +    +    +    +    +    +--netlink_send_ack(kernel_netlink_shared.c:524)
+    +    +    +    +    +    +
+    +    +    +    +    +    +--install_policies_outbound(sa/child_sa.c:973)
+
+
+
+
+./configure CFLAGS="-g -O0"   --enable-static  --enable-kernel-pfkey --enable-kernel-pfroute --disable-kernel-netlink --disable-kernel-libipsec
+sudo ./src/starter/.libs/starter --nofork --attach-gdb
+
+
+kernel_netlink_ipsec_create
+(gdb) bt
+#0  kernel_netlink_ipsec_create () at kernel_netlink_ipsec.c:3248
+#1  0x00007ffff790200d in add_ipsec_interface (this=0x609e50, constructor=<optimized out>) at kernel/kernel_interface.c:741
+#2  0x00007ffff7ba1153 in load_feature (level=4, provided=0x62f4e0, this=0x608440) at plugins/plugin_loader.c:786
+#3  load_provided (this=this@entry=0x608440, provided=0x62f4e0, level=level@entry=3) at plugins/plugin_loader.c:861
+#4  0x00007ffff7ba10aa in load_provided (level=3, provided=<optimized out>, this=0x608440) at plugins/plugin_loader.c:832
+#5  load_registered (registered=<optimized out>, level=3, this=0x608440) at plugins/plugin_loader.c:688
+#6  load_dependencies (level=3, provided=0x630910, this=0x608440) at plugins/plugin_loader.c:730
+#7  load_feature (level=3, provided=0x630910, this=0x608440) at plugins/plugin_loader.c:784
+#8  load_provided (this=this@entry=0x608440, provided=0x630910, level=level@entry=2) at plugins/plugin_loader.c:861
+#9  0x00007ffff7ba10aa in load_provided (level=2, provided=<optimized out>, this=0x608440) at plugins/plugin_loader.c:832
+#10 load_registered (registered=<optimized out>, level=2, this=0x608440) at plugins/plugin_loader.c:688
+#11 load_dependencies (level=2, provided=0x610b40, this=0x608440) at plugins/plugin_loader.c:730
+#12 load_feature (level=2, provided=0x610b40, this=0x608440) at plugins/plugin_loader.c:784
+#13 load_provided (this=this@entry=0x608440, provided=0x610b40, level=level@entry=1) at plugins/plugin_loader.c:861
+#14 0x00007ffff7ba10aa in load_provided (level=1, provided=<optimized out>, this=0x608440) at plugins/plugin_loader.c:832
+#15 load_registered (registered=<optimized out>, level=1, this=0x608440) at plugins/plugin_loader.c:688
+#16 load_dependencies (level=1, provided=0x6109b0, this=0x608440) at plugins/plugin_loader.c:730
+#17 load_feature (level=1, provided=0x6109b0, this=0x608440) at plugins/plugin_loader.c:784
+#18 load_provided (this=this@entry=0x608440, provided=0x6109b0, level=level@entry=0) at plugins/plugin_loader.c:861
+#19 0x00007ffff7ba1a82 in load_provided (level=0, provided=<optimized out>, this=0x608440) at plugins/plugin_loader.c:832
+#20 load_features (this=0x608440) at plugins/plugin_loader.c:882
+#21 load_plugins (this=<optimized out>, 
+    list=0x402690 "aes des rc2 sha2 sha1 md5 mgf1 random nonce x509 revocation constraints pubkey pkcs1 pkcs7 pkcs8 pkcs12 pgp dnskey sshkey pem fips-prf gmp curve25519 xcbc cmac hmac attr kernel-netlink resolve socket-"...) at plugins/plugin_loader.c:1271
+#22 0x00007ffff78f0c1a in initialize (this=<optimized out>, 
+    plugins=0x402690 "aes des rc2 sha2 sha1 md5 mgf1 random nonce x509 revocation constraints pubkey pkcs1 pkcs7 pkcs8 pkcs12 pgp dnskey sshkey pem fips-prf gmp curve25519 xcbc cmac hmac attr kernel-netlink resolve socket-"...) at daemon.c:894
+#23 0x0000000000401964 in main (argc=1, argv=0x7fffffffe678) at charon.c:407
+
+
+
+
+receive_events （kernel_netlink_ipsec.c:1125）
+    +
+    +--process_acquire (kernel_netlink_ipsec.c:943)
+    +    +
+    +    +--acquire (kernel/kernel_interface.c:802)
+    +    +    +
+    +    +    +--acquire (kernel/kernel_handler.c:61)
+    +    +    +    +
+    +    +    +    +--queue_job (stroke_control.c:637)  queue_job(lib->processor,(job_t*)acquire_job_create(reqid, src_ts, dst_ts));  10[KNL] creating acquire job for policy 192.168.1.30/32[udp/39625] === 192.168.1.22/32[udp/1025] with reqid {1}
+
+
+#0  build_i (this=0x645dd0, message=0x646fd0) at sa/ikev2/tasks/ike_init.c:536
+#1  0x00007ffff791ae71 in initiate (this=0x646180) at sa/ikev2/task_manager_v2.c:635
+#2  0x00007ffff79159a9 in acquire (this=0x60bfd0, reqid=1, src=0x6431d0, dst=0x643290) at sa/trap_manager.c:573
+#3  0x00007ffff7904733 in execute (this=<optimized out>) at processing/jobs/acquire_job.c:59
+#4  0x00007ffff7ba346b in process_job (worker=0x641a80, this=0x6075a0) at processing/processor.c:235
+#5  process_jobs (worker=0x641a80) at processing/processor.c:321
+#6  0x00007ffff7bb4c4b in thread_main (this=0x641ab0) at threading/thread.c:331
+#7  0x00007ffff76c56ba in start_thread (arg=0x7fffeda65700) at pthread_create.c:333
+#8  0x00007ffff73fb41d in clone () at ../sysdeps/unix/sysv/linux/x86_64/clone.S:109
+
+
+
+
+
+
+
+
+
+
+
+
