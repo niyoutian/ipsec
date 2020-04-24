@@ -16,3 +16,30 @@ shell main (utilities/ovs-ctl)
 
 
 sudo ovsdb-server /usr/local/etc/openvswitch/conf.db -vconsole:emer -vsyslog:err -vfile:info --remote=punix:/usr/local/var/run/openvswitch/db.sock --private-key=db:Open_vSwitch,SSL,private_key --certificate=db:Open_vSwitch,SSL,certificate --bootstrap-ca-cert=db:Open_vSwitch,SSL,ca_cert --no-chdir --log-file=/usr/local/var/log/openvswitch/ovsdb-server.log --pidfile=/usr/local/var/run/openvswitch/ovsdb-server.pid --detach --monitor
+
+sudo ovs-vswitchd unix:/usr/local/var/run/openvswitch/db.sock -vconsole:emer -vsyslog:err -vfile:info --mlockall
+
+(gdb) bt
+#0  vconn_connect (vconn=0x8c7880) at lib/vconn.c:559
+#1  0x0000000000535725 in vconn_run (vconn=0x8c7880) at lib/vconn.c:274
+#2  0x00000000005176e7 in rconn_run (rc=0x91b390) at lib/rconn.c:631
+#3  0x0000000000457969 in ofservice_run (ofservice=0x91b4b0) at ofproto/connmgr.c:1992
+#4  connmgr_run (mgr=0x9010a0, handle_openflow=handle_openflow@entry=0x423c30 <handle_openflow>) at ofproto/connmgr.c:367
+#5  0x000000000041dac6 in ofproto_run (p=0x900b50) at ofproto/ofproto.c:1826
+#6  0x000000000040b464 in bridge_run__ () at vswitchd/bridge.c:2965
+#7  0x00000000004106f4 in bridge_run () at vswitchd/bridge.c:3023
+#8  0x0000000000407025 in main (argc=6, argv=0x7fffffffe578) at vswitchd/ovs-vswitchd.c:127
+
+bt vcs_connecting
+(gdb) bt
+#0  vconn_connect (vconn=0x91a830) at lib/vconn.c:555
+#1  0x0000000000535725 in vconn_run (vconn=0x91a830) at lib/vconn.c:274
+#2  0x00000000005176e7 in rconn_run (rc=0x91aa90) at lib/rconn.c:631
+#3  0x0000000000457969 in ofservice_run (ofservice=0x8ea9e0) at ofproto/connmgr.c:1992
+#4  connmgr_run (mgr=0x9026a0, handle_openflow=handle_openflow@entry=0x423c30 <handle_openflow>) at ofproto/connmgr.c:367
+#5  0x000000000041dac6 in ofproto_run (p=0x902150) at ofproto/ofproto.c:1826
+#6  0x000000000040b464 in bridge_run__ () at vswitchd/bridge.c:2965
+#7  0x000000000040cab5 in bridge_reconfigure (ovs_cfg=ovs_cfg@entry=0x8c6680) at vswitchd/bridge.c:723
+#8  0x0000000000410776 in bridge_run () at vswitchd/bridge.c:3044
+#9  0x0000000000407025 in main (argc=6, argv=0x7fffffffe578) at vswitchd/ovs-vswitchd.c:127
+(gdb) 
