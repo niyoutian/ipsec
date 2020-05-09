@@ -1,0 +1,1 @@
+sudo iptables -t mangle -A PREROUTING -i ens33 -p tcp --dport 80 -j MARK --set-mark 1

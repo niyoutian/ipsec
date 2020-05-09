@@ -43,3 +43,18 @@ bt vcs_connecting
 #8  0x0000000000410776 in bridge_run () at vswitchd/bridge.c:3044
 #9  0x0000000000407025 in main (argc=6, argv=0x7fffffffe578) at vswitchd/ovs-vswitchd.c:127
 (gdb) 
+
+
+main (vswitchd/ovs-vswitchd.c:127)
+    +
+    +--bridge_run
+    +    +
+    +    +--if_notifier_run
+    +    +    +
+    +    +    +--rtnetlink_run
+    +    +    +    +
+    +    +    +    +--nln_run
+    +    +    +  
+    +    +    +   
+    +    +    +--upgrade_db $DB_FILE $DB_SCHEMA
+    +    +    +  
