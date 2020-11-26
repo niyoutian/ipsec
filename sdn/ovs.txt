@@ -58,3 +58,130 @@ main (vswitchd/ovs-vswitchd.c:127)
     +    +    +   
     +    +    +--upgrade_db $DB_FILE $DB_SCHEMA
     +    +    +  
+
+
+main (vswitchd/ovs-vswitchd.c:127)
+    +
+    +--bridge_init
+    +    +  /* Creates and returns a connection to database 'remote' */
+    +    +--ovsdb_idl_create(remote, &ovsrec_idl_class, true, true) 
+    +    +    +
+    +    +    +--ovsdb_idl_create_unconnected
+    +    +    +    +
+    +    +    +    +--ovsdb_idl_db_init(&idl->server, &serverrec_idl_class, idl, true);
+    +    +    +    +
+    +    +    +    +--ovsdb_idl_db_init(&idl->data, class, idl, monitor_everything_by_default);
+    +    +    +    +
+    +    +    +    +--ovsdb_idl_set_remote(idl, remote, retry);
+    +    +    +    +    +
+    +    +    +    +    +--jsonrpc_session_open_multiple(&remotes, retry)   /* 打开会话 */
+    +
+    +--bridge_run
+    +    + 
+    +    +--ovsdb_idl_run(idl);   /* 将数据库的内容更新到内存idl */
+    +    +     +
+    +    +    +--jsonrpc_session_run(idl->session);
+    +    + 
+    +    +--ovsrec_open_vswitch_first(idl)   /* Returns a row in table "Open_vSwitch" in 'idl' */     sudo ovsdb-client dump Open_vSwitch Open_vSwitch  _uuid other_config
+    +    +     +
+    +    +     +--ovsdb_idl_first_row(idl, &ovsrec_table_open_vswitch)
+    +    +     +    +
+    +    +     +    +--ovsdb_idl_table_from_class(idl,table_class);
+    +    + 
+    +    +--使用配置
+
+
+
+sudo ovs-vsctl --no-wait set Open_vSwitch . other_config:dpdk-init=true
+sudo ovsdb-client dump Open_vSwitch Open_vSwitch other_config
+sudo ovs-vsctl --no-wait set Open_vSwitch . other_config={}
+
+
+
+main (vswitchd/ovs-vswitchd.c:127)
+    +
+    +--bridge_init
+    +
+    +--bridge_run
+    +    + 
+    +    +--bridge_reconfigure
+    +    +     +    遍例all_bridges，创建ofprotos，保存到网桥
+    +    +     +--ofproto_create(br->name, br->type, &br->ofproto)
+    +    +     +    +
+    +    +     +    +--ofproto_class_find__  找到ofproto_dpif_class
+    +    +     +    +
+    +    +     +    +--ofproto = class->alloc()      分配ofproto_dpif，相当于派生类对象
+    +    +     +    +
+    +    +     +    +--ofproto->connmgr = connmgr_create   创建openflow连接管理
+    +    +     +    +
+    +    +     +    +--ofproto->ofproto_class->construct(ofproto)  初始化ofproto_dpif  创建线程
+    +    +     + 
+    +    +     +--bridge_run__
+    +    +     +    +
+    +    +     +    +--ofproto_run(br->ofproto)
+    +    +     +    +    +   ofproto/ofproto-dpif.c文件里
+    +    +     +    +    +--p->ofproto_class->run(p) 
+
+
+
+main (vswitchd/ovs-vswitchd.c:127)
+    +
+    +--bridge_init
+    +
+    +--bridge_run
+    +    + 
+    +    +--bridge_reconfigure
+    +    +    +
+    +    +    +--bridge_configure_remotes
+    +    +    +    +
+    +    +    +    +--bridge_get_controllers(br, &controllers) /* 从表里获取配置信息 */
+    +    +    +    +
+    +    +    +    +--ofproto_set_controllers(br->ofproto, &ocs);
+    +    +    +    +    +
+    +    +    +    +    +--connmgr_set_controllers(p->connmgr, controllers)
+    +    +    +    +    +    +
+    +    +    +    +    +    +--ofservice_create(struct connmgr *mgr, const char *target,const struct ofproto_controller *c)
+    +    +    +    +    +    +    +
+    +    +    +    +    +    +    +--rconn_create   /* 主动连接 */
+    +    +    +    +    +    +    +
+    +    +    +    +    +    +    +--rconn_connect
+    +    +    +    +    +    +    +
+    +    +    +    +    +    +    +--pvconn_open   /* 被动连接 */
+
+
+
+
+
+
+ofproto_run
+    +
+    +--connmgr_run
+    +    + 
+    +    +--ofservice_run
+    +    +    +
+    +    +    +--rconn_run
+    +    +    +    +
+    +    +    +    +--vconn_run                                       1
+    +    +    +    +    +
+    +    +    +    +    +--vconn_connect(vconn)              1.1
+    +    +    +    +    +    +    VCS_CONNECTING
+    +    +    +    +    +    +--vcs_connecting(vconn)       1.2
+    +    +    +    +    +    +   VCS_SEND_HELLO
+    +    +    +    +    +    +--vcs_send_hello(vconn)        1.3
+    +    +    +    +    +    +   VCS_RECV_HELLO
+    +    +    +    +    +    +--vcs_recv_hello(vconn)         1.4   
+    +    +    +    +                VCS_CONNECTED
+    +    +    +    +--run_CONNECTING                          2
+    +    +    +    +          S_ACTIVE      
+    +    +    +    +--run_ACTIVE(struct rconn *rc)           3
+    +    +    +    +    +     S_IDLE      
+    +    +    +    +    +      /* Send an echo request. */
+    +    +    +    +    +--rconn_send__(struct rconn *rc, struct ofpbuf *b,struct rconn_packet_counter *counter)   
+    +    +    +    +    +    +
+    +    +    +    +    +    +--try_send(struct rconn *rc)
+    +    +    +    +    +    +    +
+    +    +    +    +    +    +    +--vconn_send(rc->vconn, msg)
+    +    +    +    +
+    +    +    +    +--run_IDLE                                         4
+    +    +    +    +    +
+    +    +    +    +    +--do_tx_work(struct rconn *rc)

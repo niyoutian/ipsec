@@ -206,7 +206,58 @@ receive_events （kernel_netlink_ipsec.c:1125）
 
 
 
+{
+	"Peer":"192.168.1.33",
+	"Local":""    --option
+	"IKE_Proposal":[]" "，
+	"ID":"40800b7a-9fba-11ea" ，
+	"Version":"1.0",
+	"Timestamp"："2020-05-27 22:34:09"
+	"Parameter":{	
+		"ServiceType":"Game_speeder",
+		"ServiceId":"1",
+		"MAC":"3437595FCC64",				
+"DatapathID":"0000000000000004",	
+		"Operation":[
+			{"CmdType":"ADD_ServiceFlow",
+			"Data":{"IPS":["1.0.0.0\/15","1.2.0.0\/16","1.4.0.0\/14"],				            "URL":["prod-live-entry.playbattlegrounds.com",
+"pubg1.battleye.com"], 
+					"OutPort":"29"}
+			}	//第一个操作								
+			]
+}
+}
 
+
+
+{
+    "Peer":"192.168.1.33",
+    "Local":"",
+    "Proposal List":[
+        {
+            "index":"1",
+            "Proto ID":"IKE",
+            "Transform List":[
+                {
+                    "Transform Type":"ENCR",
+                    "Transform ID":"ENCR_DES"
+                },
+                {
+                    "Transform Type":"PRF",
+                    "Transform ID":"PRF_HMAC_SHA1"
+                },
+                {
+                    "Transform Type":"AUTH",
+                    "Transform ID":"AUTH_HMAC_MD5_96"
+                },
+                {
+                    "Transform Type":"DH",
+                    "Transform ID":"AUTH_HMAC_MD5_96"
+                }
+            ]
+        }
+    ]
+}
 
 
 
